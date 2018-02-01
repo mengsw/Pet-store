@@ -1,0 +1,10 @@
+1.create a function will count the number of services a dog take by given dog name.
+2.create a function will return dog name by given dog id.
+3.create a function will return dog's master name by given dog id.
+4.create a function will count store's service times by given store id.(caculate how many times services is provieded by given store id)
+5.create a function caculate how many dogs a customer have by given customer id.
+6.create a producre will list all dogs of one specific breed by given breed name.
+7.create a function will count how many times of a services has been provieded by given services name.
+8.create a function will count each customer has how many different breeds of dogs by given customer id and breed name.
+9.create a trigger before delete any records from customers, it will create a backup data into cutomers_backup table.
+10.create a procedure that lists all the dog breeds that company has been serviced.

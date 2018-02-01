@@ -1,0 +1,231 @@
+--q1
+create or replace function count_dog(in_dog_name in varchar)
+  return number is
+  v_count  int;
+  v_dog_id int;
+begin
+  select dog_id into v_dog_id from dogs where dog_name = in_dog_name;
+  select count(*)
+    into v_count
+    from SERVICE_HISTORY a
+   where dog_id = v_dog_id;
+  return v_count;
+end count_dog;
+
+select  count_dog('Max') from dual;
+
+--output:
+
+                       COUNT_DOG('MAX')
+---------------------------------------
+                                      1
+
+--q2
+create or replace function dog_name(v_dog_id in int) return varchar is
+  v_dog_name varchar(300);
+begin
+  select dog_name into v_dog_name from dogs where dog_id =v_dog_id;
+  return v_dog_name;
+end dog_name;
+
+
+select dog_name(2) from dual;
+
+
+DOG_NAME(2)                                                                                    
+-----------------------------------------------------------------------
+Buddy  
+
+
+--q3
+
+create or replace function customer_name(v_dog_id in int) return varchar is
+  v_cid  int;
+  v_name varchar(3000);
+BEGIN
+  select c_id into v_cid from dogs where dog_id =v_dog_id;
+  select f_name || ' ' || l_name
+    into v_name
+    from customers
+   where c_id = v_cid;
+  return v_name;
+end customer_name;
+
+select customer_name(2) from dual;
+
+
+CUSTOMER_NAME(2)                                                                                                           
+-----------------------------------------------------------------------
+Yun Jared 
+
+--q4
+
+create or replace function count_store(v_STORE_ID in int) return number is
+   v_count int;
+ begin
+   select count(SERVICE_ID)
+     into v_count
+     from service_history
+    where store_id = v_STORE_ID;
+   return v_count;
+ end count_store;
+
+select count_store(2) from dual;
+
+output:
+                         COUNT_STORE(2)
+---------------------------------------
+                                      1
+
+
+q5
+create or replace function count_dog_customer(in_cid in number) return number is
+v_count int;
+begin 
+   select count(*)
+     into v_count
+     from dogs
+    where C_ID = in_cid;
+   return v_count;
+ end count_dog_customer;    
+ 
+
+select count_dog_customer(471) from dual;
+
+                COUNT_DOG_CUSTOMER(471)
+---------------------------------------
+                                      2
+
+q6
+create or replace procedure get_dog_name(in_BREED varchar) is
+  cursor c_dog is
+    select dog_name from dogs where dog_breed = in_Breed;
+  c_row c_dog%rowtype;
+begin
+ dbms_output.put_line('Dogs name:');
+  for c_row in c_dog loop
+    dbms_output.put_line(c_row.dog_name);
+  end loop;
+end get_dog_name;
+ 
+exec get_dog_name('Alpine Dachsbracke');
+
+dbms output:
+Dogs name:
+Rocky
+Toby
+
+--Q7
+
+create or replace function count_service(in_service_name varchar) return number is
+v_count int;
+begin
+    select count(*) into v_count from SERVICE_HISTORY_DETAIL  where service_name = in_service_name;
+    return v_count;
+end  count_service;
+
+select  count_service('Fur Trim') from dual;
+
+OUTPUT:
+               COUNT_SERVICE('FURTRIM')
+---------------------------------------
+                                      7
+
+
+--q8
+create or replace package P1 as
+function count_dog_customer(in_cid in number,in_breed varchar) return number ;
+procedure breed_dog_count(in_breed in varchar2);
+end P1;
+
+create package body P1 as 
+function count_dog_customer(in_cid in number,in_breed varchar) return number is v_count int;nodata exception;
+begin 
+   select count(*)
+     into v_count
+     from dogs
+    where C_ID = in_cid and dog_breed = in_breed;
+   return v_count;
+if v_count is null then 
+raise nodata;
+end if;
+exception 
+when nodata then
+DBMS_OUTPUT.PUT_LINE('no data');
+end count_dog_customer;
+
+procedure breed_dog_count(in_breed in varchar2)as 
+v_count number;nodata exception;
+begin 
+select count(*) into v_count from dogs where in_breed = dog_breed;
+DBMS_OUTPUT.PUT_LINE(v_count);
+if v_count is null then 
+raise nodata;
+end if;
+exception 
+when nodata then
+DBMS_OUTPUT.PUT_LINE('no data');
+end breed_dog_count;
+
+end P1;
+
+select P1.count_dog_customer(480,'Mudi')from dual;
+//check how many mudi customer 480 has
+output:
+P1.COUNT_DOG_CUSTOMER(480,'MUDI')
+---------------------------------------
+                                      1
+
+exec  P1.breed_dog_count('Mudi');
+//check how many mudi breed dogs the company has serviced
+dbms output: 1
+
+q9
+CREATE OR REPLACE TRIGGER customers_before_delete
+      BEFORE DELETE
+            ON CUSTOMERS
+           FOR EACH ROW
+     
+      BEGIN       
+          -- Insert record into audit table
+           INSERT INTO CUSTOMERS_backup (C_ID, F_NAME, L_NAME, DOB )
+                               VALUES (:old.C_ID, :old.F_NAME, :old.L_NAME, :old.DOB);
+       END;
+
+CREATE TABLE CUSTOMERS_backup (C_ID NUMBER, F_NAME VARCHAR2(50), L_NAME VARCHAR2(50), DOB DATE);
+insert into customers values(10000,'test','test','01-JAN-90');
+delete  from customers where c_id=10000;
+select * from CUSTOMERS_backup;
+
+output:
+  C_ID F_NAME                                             L_NAME                                             DOB     
+---------- -------------------------------------------------- -------------------------------------------------- ---------
+     10000 test                                               test                                               01-JAN-90
+
+q10
+create or replace procedure get_dog_breeds 
+is
+  cursor c_dog is
+    select distinct dog_breed from dogs ;
+  c_row c_dog%rowtype;
+begin
+  for c_row in c_dog loop
+    dbms_output.put_line(c_row.dog_breed);
+  end loop;
+end get_dog_breeds;
+
+exec  get_dog_breeds ;
+
+dbms output:
+create or replace procedure get_dog_breeds 
+is
+  cursor c_dog is
+    select distinct dog_breed from dogs ;
+  c_row c_dog%rowtype;
+begin
+  for c_row in c_dog loop
+    dbms_output.put_line(c_row.dog_breed);
+  end loop;
+end get_dog_breeds;
+
+exec  get_dog_breeds ;
